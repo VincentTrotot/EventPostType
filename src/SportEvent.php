@@ -23,70 +23,6 @@ class SportEvent extends Event
         }
     }
 
-
-    
-    public function oneDayEvent($sidebar) : string
-    {
-        $res = Event::inFrench('L j f Y', $this->start);
-        if (!$sidebar) {
-            $res .= ' | ' . Event::inFrench('G\hi', $this->start);
-            if (Event::inFrench('G\hi', $this->start) != Event::inFrench('G\hi', $this->end)) {
-                $res .= ' > ' . Event::inFrench('G\hi', $this->end);
-            }
-        }
-        return $res;
-    }
-    
-    public function twoDaysEvent($sidebar) : string
-    {
-        $res = Event::inFrench('L j', $this->start).' et '.Event::inFrench('l j f Y', $this->end);
-        if (!$sidebar &&
-            Event::inFrench('G\hi', $this->start) != '0h' &&
-            Event::inFrench('G\hi', $this->end) != '0h'
-        ) {
-            $res .=
-                ' | Démarrage à '
-                .Event::inFrench('G\hi', $this->start)
-                .' le '.Event::inFrench('l', $this->start);
-        }
-        return $res;
-    }
-    
-    public function moreDaysSameMonthEvent($sidebar) : string
-    {
-        $res = 'Du '.Event::inFrench('l j', $this->start). ' au '. Event::inFrench('l j f Y', $this->end);
-        if (!$sidebar &&
-            Event::inFrench('G\hi', $this->start) != '0h' &&
-            Event::inFrench('G\hi', $this->end) != '0h'
-        ) {
-            $res .=
-                ' | Démarrage à '
-                .Event::inFrench('G\hi', $this->start)
-                .' le '.Event::inFrench('l', $this->start);
-        }
-        return $res;
-    }
-    
-    public function differentMonthEvent($sidebar) : string
-    {
-        $consecutive = Event::inFrench('j', strtotime('+1 day', $this->start)) === Event::inFrench('j', $this->end);
-        if ($consecutive) {
-            $res = Event::inFrench('L j f', $this->start).' et '.Event::inFrench('l j f Y', $this->end);
-        } else {
-            $res = 'Du '. Event::inFrench('l j f', $this->start) .' au '. Event::inFrench('l j f Y', $this->end);
-        }
-        if (!$sidebar &&
-            Event::inFrench('G\hi', $this->start) != '0h' &&
-            Event::inFrench('G\hi', $this->end) != '0h'
-        ) {
-            $res .=
-                ' | Démarrage à '
-                .Event::inFrench('G\hi', $this->start)
-                .' le '.Event::inFrench('l', $this->start);
-        }
-        return $res;
-    }
-
     public function checkIfOutdated()
     {
        
@@ -211,7 +147,7 @@ class SportEvent extends Event
         foreach ($results as $saison) {
             if ($saison[1] > 8 && !in_array($saison[0], $saisons)) {
                 $saisons[] = $saison[0];
-            } else if(!in_array(((int) $saison[0] - 1), $saisons)) {
+            } elseif (!in_array(((int) $saison[0] - 1), $saisons)) {
                 $saisons[] = (int) $saison[0] - 1;
             }
         }

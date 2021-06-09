@@ -1,20 +1,23 @@
 {
     "name": "vtrotot/event-post-type",
     "description": "Event Custom Post Type for WordPress Theme",
-    "require": {
-        "timber/timber": "^1.18",
-        "symfony/http-foundation": "^5.3"
-    },
-    "autoload": {
-        "psr-4": {
-            "VincentTrotot\\Event\\": "src/"
-        }
-    },
     "authors": [
         {
             "name": "Vincent TROTOT",
             "email": "vincent.trotot@icloud.com"
         }
     ],
+    "require": {
+        "timber/timber": "^1.18",
+        "symfony/http-foundation": "^5.3"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "VincentTrotot\\Event\\": "src/"
+        }
+    },
     "license": "MIT"
 }

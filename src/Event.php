@@ -228,25 +228,25 @@ class Event extends \Timber\Post
      * Retourne la date formatée différement selon si l'événement est sur un jour,  \
      * plusieurs jours, ou sur des mois différents.
      */
-    public function getDate($sidebar = false)
+    public function getDate($hour = false)
     {
             // événement sur 1 jour
         if ($this->isOneDayEvent()) {
-            return $this->oneDayEvent($sidebar);
+            return $this->oneDayEvent($hour);
         }
     
         // événement sur deux jours dans le même mois
         if ($this->isTwoDaysSameMonthEvent()) {
-            return $this->twoDaysSameMonthEvent($sidebar);
+            return $this->twoDaysSameMonthEvent($hour);
         }
         
         // événement sur plus de deux jours dans le même mois
         if ($this->isMoreDaysSameMonthEvent()) {
-            return $this->moreDaysSameMonthEvent($sidebar);
+            return $this->moreDaysSameMonthEvent($hour);
         }
     
         // événement sur plusieurs jours dans des mois différents
-        return $this->differentMonthEvent($sidebar);
+        return $this->differentMonthEvent($hour);
     }
     
 
@@ -261,11 +261,14 @@ class Event extends \Timber\Post
     /**
      * Retourne la date formatée pour un événement sur un jour
      */
-    public function oneDayEvent($sidebar)
+    public function oneDayEvent($sidebar) : string
     {
-        $res = $this->getStartInFrench('L j f Y – G\hi');
-        if ($this->getStartInFrench('G\hi') != $this->getEndInFrench('G\hi')) {
-            $res .= ' > ' . $this->getEndInFrench('G\hi');
+        $res = Event::inFrench('L j f Y', $this->start);
+        if (!$sidebar) {
+            $res .= ' | ' . Event::inFrench('G\hi', $this->start);
+            if (Event::inFrench('G\hi', $this->start) != Event::inFrench('G\hi', $this->end)) {
+                $res .= ' > ' . Event::inFrench('G\hi', $this->end);
+            }
         }
         return $res;
     }
@@ -282,9 +285,19 @@ class Event extends \Timber\Post
     /**
      * Retourne la date formatée pour un événement sur deux jours consécutifs dans le même mois
      */
-    public function twoDaysSameMonthEvent($sidebar) : string
+    public function twoDaysEvent($sidebar) : string
     {
-        return $this->getStartInFrench('L j').' et '.$this->getEndInFrench('l j f Y');
+        $res = Event::inFrench('L j', $this->start).' et '.Event::inFrench('l j f Y', $this->end);
+        if (!$sidebar &&
+            Event::inFrench('G\hi', $this->start) != '0h' &&
+            Event::inFrench('G\hi', $this->end) != '0h'
+        ) {
+            $res .=
+                ' | Démarrage à '
+                .Event::inFrench('G\hi', $this->start)
+                .' le '.Event::inFrench('l', $this->start);
+        }
+        return $res;
     }
     
     /**
@@ -301,18 +314,39 @@ class Event extends \Timber\Post
      */
     public function moreDaysSameMonthEvent($sidebar) : string
     {
-        return 'Du '.$this->getStartInFrench('l j'). ' au '. $this->getEndInFrench('l j f Y');
+        $res = 'Du '.Event::inFrench('l j', $this->start). ' au '. Event::inFrench('l j f Y', $this->end);
+        if (!$sidebar &&
+            Event::inFrench('G\hi', $this->start) != '0h' &&
+            Event::inFrench('G\hi', $this->end) != '0h'
+        ) {
+            $res .=
+                ' | Démarrage à '
+                .Event::inFrench('G\hi', $this->start)
+                .' le '.Event::inFrench('l', $this->start);
+        }
+        return $res;
     }
     
     /**
      * Retourne la date formatée pour un événement dont le début et la fin ne sont pas dans le même mois
      */
-    public function differentMonthEvent($sidebar)
+    public function differentMonthEvent($sidebar) : string
     {
-        $consecutive = Event::inFrench('j', strtotime('+1 day', $this->start)) == $this->getEndInFrench('j');
+        $consecutive = Event::inFrench('j', strtotime('+1 day', $this->start)) === Event::inFrench('j', $this->end);
         if ($consecutive) {
-            return $this->getStartInFrench('L j f').' et '.$this->getEndInFrench('l j f Y');
+            $res = Event::inFrench('L j f', $this->start).' et '.Event::inFrench('l j f Y', $this->end);
+        } else {
+            $res = 'Du '. Event::inFrench('l j f', $this->start) .' au '. Event::inFrench('l j f Y', $this->end);
         }
-        return 'Du '.$this->getStartInFrench('l j f') .' au '.$this->getEndInFrench('l j f Y');
+        if (!$sidebar &&
+            Event::inFrench('G\hi', $this->start) != '0h' &&
+            Event::inFrench('G\hi', $this->end) != '0h'
+        ) {
+            $res .=
+                ' | Démarrage à '
+                .Event::inFrench('G\hi', $this->start)
+                .' le '.Event::inFrench('l', $this->start);
+        }
+        return $res;
     }
 }

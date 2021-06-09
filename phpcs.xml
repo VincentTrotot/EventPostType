@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+
+<ruleset name="App">
+    <description>Règles des fichiers App</description>
+
+    <arg name="colors" />
+    <arg value="p" />
+
+    <file>./</file>
+
+    <exclude-pattern>vendor</exclude-pattern>
+    <exclude-pattern>src/js</exclude-pattern>
+
+    <rule ref="PSR2"></rule>
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"></rule>
+</ruleset>
