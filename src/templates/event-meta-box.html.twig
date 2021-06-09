@@ -1,0 +1,23 @@
+
+<input type="hidden" name="vt-events-nonce" id="vt-events-nonce" value="{{ nonce }}" />
+<h5>Date de début</h5>
+<p>
+    <input type="datetime-local"
+        id="vt_events_startdate"
+        name="vt_events_startdate"
+        value="{{ (post.start | default(post.now)) | date('Y-m-d\\TH:i') }}"
+    />
+</p>
+
+<h5>Date de fin</h5>
+<p>
+    <input
+        type="datetime-local"
+        id="vt_events_enddate"
+        name="vt_events_enddate"
+        value="{{ (post.end | default(post.now)) | date('Y-m-d\\TH:i') }}"
+    />
+</p>
+
+<h5>Lieu</h5>
+<p><input name="vt_events_location" class="tflocation" value="{{ post.location }}" /></p>
