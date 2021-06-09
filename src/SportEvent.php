@@ -211,6 +211,8 @@ class SportEvent extends Event
         foreach ($results as $saison) {
             if ($saison[1] > 8 && !in_array($saison[0], $saisons)) {
                 $saisons[] = $saison[0];
+            } else if(!in_array(((int) $saison[0] - 1), $saisons)) {
+                $saisons[] = (int) $saison[0] - 1;
             }
         }
 
