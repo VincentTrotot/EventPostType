@@ -261,10 +261,10 @@ class Event extends \Timber\Post
     /**
      * Retourne la date formatée pour un événement sur un jour
      */
-    public function oneDayEvent($sidebar) : string
+    public function oneDayEvent($hour) : string
     {
         $res = Event::inFrench('L j f Y', $this->start);
-        if (!$sidebar) {
+        if (!$hour) {
             $res .= ' | ' . Event::inFrench('G\hi', $this->start);
             if (Event::inFrench('G\hi', $this->start) != Event::inFrench('G\hi', $this->end)) {
                 $res .= ' > ' . Event::inFrench('G\hi', $this->end);
@@ -285,10 +285,10 @@ class Event extends \Timber\Post
     /**
      * Retourne la date formatée pour un événement sur deux jours consécutifs dans le même mois
      */
-    public function twoDaysEvent($sidebar) : string
+    public function twoDaysEvent($hour) : string
     {
         $res = Event::inFrench('L j', $this->start).' et '.Event::inFrench('l j f Y', $this->end);
-        if (!$sidebar &&
+        if (!$hour &&
             Event::inFrench('G\hi', $this->start) != '0h' &&
             Event::inFrench('G\hi', $this->end) != '0h'
         ) {
@@ -312,10 +312,10 @@ class Event extends \Timber\Post
     /**
      * Retourne la date formatée pour un événement sur plus de deux jours dans le même mois
      */
-    public function moreDaysSameMonthEvent($sidebar) : string
+    public function moreDaysSameMonthEvent($hour) : string
     {
         $res = 'Du '.Event::inFrench('l j', $this->start). ' au '. Event::inFrench('l j f Y', $this->end);
-        if (!$sidebar &&
+        if (!$hour &&
             Event::inFrench('G\hi', $this->start) != '0h' &&
             Event::inFrench('G\hi', $this->end) != '0h'
         ) {
@@ -330,7 +330,7 @@ class Event extends \Timber\Post
     /**
      * Retourne la date formatée pour un événement dont le début et la fin ne sont pas dans le même mois
      */
-    public function differentMonthEvent($sidebar) : string
+    public function differentMonthEvent($hour) : string
     {
         $consecutive = Event::inFrench('j', strtotime('+1 day', $this->start)) === Event::inFrench('j', $this->end);
         if ($consecutive) {
@@ -338,7 +338,7 @@ class Event extends \Timber\Post
         } else {
             $res = 'Du '. Event::inFrench('l j f', $this->start) .' au '. Event::inFrench('l j f Y', $this->end);
         }
-        if (!$sidebar &&
+        if (!$hour &&
             Event::inFrench('G\hi', $this->start) != '0h' &&
             Event::inFrench('G\hi', $this->end) != '0h'
         ) {
