@@ -15,5 +15,6 @@
             "name": "Vincent TROTOT",
             "email": "vincent.trotot@icloud.com"
         }
-    ]
+    ],
+    "license": "MIT"
 }
