@@ -7,7 +7,7 @@
             "email": "vincent.trotot@icloud.com"
         }
     ],
-    "require": {{
+    "require": {
         "php": ">=5.6",
         "timber/timber": "^1.18",
         "symfony/http-foundation": "^5.3"
