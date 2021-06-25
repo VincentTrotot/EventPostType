@@ -13,10 +13,10 @@ class Event extends \Timber\Post
     public function __construct($pid = null)
     {
         parent::__construct($pid);
-        $this->start = (int) $this->meta('vt_events_startdate');
-        $this->end = (int) $this->meta('vt_events_enddate');
-        $this->location = $this->meta('vt_events_location');
         $this->now = current_datetime()->getTimestamp() + current_datetime()->getOffset();
+        $this->start = (int) $this->meta('vt_events_startdate') == 0 ? (int) $this->meta('vt_events_startdate') == 0 : $this->now;
+        $this->end = (int) $this->meta('vt_events_enddate')== 0 ? (int) $this->meta('vt_events_enddate') == 0 : $this->now;
+        $this->location = $this->meta('vt_events_location');
     }
 
     /**
