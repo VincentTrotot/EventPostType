@@ -34,7 +34,7 @@ class Event extends \Timber\Post
             'post__not_in' => $post_not_in,
             'meta_query' => [
                 [
-                    'key' => 'vt_events_enddate',
+                    'key' => 'vt_events_startdate',
                     // on affiche les événements jusqu'à la fin de la journée
                     'value' => strtotime(date("Ymd", $this->now)),
                     'compare' => '>',
