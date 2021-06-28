@@ -454,7 +454,7 @@ class EventPostType
         if ('vt_events' != $post_type) {
             return;
         }
-        wp_enqueue_script('custom_script', __DIR__.'/js/vt_events.js');
+        wp_enqueue_script('custom_script', str_replace( ABSPATH, '/', __DIR__ ).'/js/vt_events.js');
     }
 
     /**
