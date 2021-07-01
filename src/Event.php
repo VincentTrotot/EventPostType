@@ -33,7 +33,7 @@ class Event extends \Timber\Post
             'orderby' => 'meta_value',
             'post__not_in' => $post_not_in,
             'meta_query' => [
-                'relation' => 'AND',
+                'relation' => 'OR',
                 [
                     'key' => 'vt_events_startdate',
                     // on affiche les événements jusqu'à la fin de la journée
