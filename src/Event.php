@@ -33,11 +33,18 @@ class Event extends \Timber\Post
             'orderby' => 'meta_value',
             'post__not_in' => $post_not_in,
             'meta_query' => [
+                'relation' => 'AND',
                 [
                     'key' => 'vt_events_startdate',
                     // on affiche les événements jusqu'à la fin de la journée
                     'value' => strtotime(date("Ymd", $this->now)),
-                    'compare' => '>',
+                    'compare' => '>=',
+                ],
+                [
+                    'key' => 'vt_events_enddate',
+                    // on affiche les événements jusqu'à la fin de la journée
+                    'value' => strtotime(date("Ymd", $this->now)),
+                    'compare' => '>=',
                 ],
             ],
             'order' => 'ASC',
@@ -264,7 +271,7 @@ class Event extends \Timber\Post
     public function oneDayEvent($hour) : string
     {
         $res = Event::inFrench('L j f Y', $this->start);
-        if (!$hour) {
+        if ($hour) {
             $res .= ' | ' . Event::inFrench('G\hi', $this->start);
             if (Event::inFrench('G\hi', $this->start) != Event::inFrench('G\hi', $this->end)) {
                 $res .= ' > ' . Event::inFrench('G\hi', $this->end);
@@ -278,17 +285,17 @@ class Event extends \Timber\Post
      */
     public function isTwoDaysSameMonthEvent() : bool
     {
-        return $this->getStartInFrench('f') === $this->getEndInFrench('f') &&
+        return $this->getStartInFrench('f') == $this->getEndInFrench('f') &&
             (int) $this->getEndInFrench('j') - (int) $this->getStartInFrench('j') == 1;
     }
 
     /**
      * Retourne la date formatée pour un événement sur deux jours consécutifs dans le même mois
      */
-    public function twoDaysEvent($hour) : string
+    public function twoDaysSameMonthEvent($hour) : string
     {
         $res = Event::inFrench('L j', $this->start).' et '.Event::inFrench('l j f Y', $this->end);
-        if (!$hour &&
+        if ($hour &&
             Event::inFrench('G\hi', $this->start) != '0h' &&
             Event::inFrench('G\hi', $this->end) != '0h'
         ) {
@@ -315,7 +322,7 @@ class Event extends \Timber\Post
     public function moreDaysSameMonthEvent($hour) : string
     {
         $res = 'Du '.Event::inFrench('l j', $this->start). ' au '. Event::inFrench('l j f Y', $this->end);
-        if (!$hour &&
+        if ($hour &&
             Event::inFrench('G\hi', $this->start) != '0h' &&
             Event::inFrench('G\hi', $this->end) != '0h'
         ) {
@@ -338,7 +345,7 @@ class Event extends \Timber\Post
         } else {
             $res = 'Du '. Event::inFrench('l j f', $this->start) .' au '. Event::inFrench('l j f Y', $this->end);
         }
-        if (!$hour &&
+        if ($hour &&
             Event::inFrench('G\hi', $this->start) != '0h' &&
             Event::inFrench('G\hi', $this->end) != '0h'
         ) {
