@@ -30,16 +30,8 @@ class Event extends \Timber\Post
         $args = [
             'post_type' => 'vt_events',
             'posts_per_page' => $nb,
-            'orderby' => 'meta_value',
             'post__not_in' => $post_not_in,
             'meta_query' => [
-                'relation' => 'OR',
-                [
-                    'key' => 'vt_events_startdate',
-                    // on affiche les événements jusqu'à la fin de la journée
-                    'value' => strtotime(date("Ymd", $this->now)),
-                    'compare' => '>=',
-                ],
                 [
                     'key' => 'vt_events_enddate',
                     // on affiche les événements jusqu'à la fin de la journée
@@ -47,6 +39,8 @@ class Event extends \Timber\Post
                     'compare' => '>=',
                 ],
             ],
+            'meta_key' => 'vt_events_startdate',
+            'orderby' => 'meta_value',
             'order' => 'ASC',
         ];
         return new \Timber\PostQuery($args, Event::class);
