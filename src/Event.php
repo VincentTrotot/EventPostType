@@ -265,7 +265,10 @@ class Event extends \Timber\Post
     public function oneDayEvent($hour) : string
     {
         $res = Event::inFrench('L j f Y', $this->start);
-        if ($hour) {
+        if ($hour &&
+            Event::inFrench('G\hi', $this->start) != '0h' &&
+            Event::inFrench('G\hi', $this->end) != '0h'
+        ) {
             $res .= ' | ' . Event::inFrench('G\hi', $this->start);
             if (Event::inFrench('G\hi', $this->start) != Event::inFrench('G\hi', $this->end)) {
                 $res .= ' > ' . Event::inFrench('G\hi', $this->end);
