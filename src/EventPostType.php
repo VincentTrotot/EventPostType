@@ -163,7 +163,6 @@ class EventPostType
     public function sortableColumns($columns)
     {
         $columns['vt_col_ev_date'] = 'vt_events_startdate';
-    
         return $columns;
     }
 
@@ -179,7 +178,7 @@ class EventPostType
             "vt_col_ev_date" => "Dates",
             "vt_col_ev_desc" => "Description",
             "vt_col_ev_cat" => "Catégorie",
-            "vt_col_ev_thumb" => "Thumbnail",
+            "vt_col_ev_home" => "Sur la page d'accueil",
             "vt_col_ev_author" => "Auteur",
             ];
     
@@ -223,6 +222,7 @@ class EventPostType
                 $starttime = Event::inFrench('G\hi', $startt);
                 $endtime = Event::inFrench('G\hi', $endt);
                 $day = false;
+
                 if ($starttime == '0h') {
                     $day = true;
                 }
@@ -242,19 +242,13 @@ class EventPostType
                 }
                 break;
 
-            case 'vt_col_ev_thumb':
-                // - show thumb -
-                $post_image_id = get_post_thumbnail_id(get_the_ID());
-                if ($post_image_id) {
-                    $thumbnail = wp_get_attachment_image_src($post_image_id, 'post-thumbnail', false);
-                    if ($thumbnail) {
-                        (string)$thumbnail = $thumbnail[0];
-                    }
-                    echo '<img src="';
-                    echo bloginfo('template_url');
-                    echo '/timthumb/timthumb.php?src=';
-                    echo $thumbnail;
-                    echo '&h=60&w=60&zc=1" alt="" />';
+            case 'vt_col_ev_home':
+                $home = $custom["vt_events_display_home"][0] ?? false;
+                if ($home == true) {
+                    echo "<p>✅</p>";
+                }
+                else {
+                    echo "<p>❌</p>";
                 }
                 break;
 
