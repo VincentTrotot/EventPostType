@@ -363,31 +363,45 @@ class EventPostType
             return;
         }
     
-        if (!wp_verify_nonce($_POST['vt-events-nonce'], 'vt-events-nonce')) {
+        if (
+            !wp_verify_nonce($_POST['vt-events-nonce'], 'vt-events-nonce') ||
+            !current_user_can('edit_post', $post->ID)
+        ) {
             return $post->ID;
-        }
-    
-        if (!current_user_can('edit_post', $post->ID)) {
-            return $post->ID;
-        }
-        
-        if (!isset($_POST["vt_events_startdate"])) {
-            return $post;
-        }
-        $updatestartd = strtotime($_POST["vt_events_startdate"]);
-        update_post_meta($post->ID, "vt_events_startdate", $updatestartd);
-    
-        if (!isset($_POST["vt_events_enddate"])) {
-            return $post;
-        }
-        $updateendd = strtotime($_POST["vt_events_enddate"]);
-        update_post_meta($post->ID, "vt_events_enddate", $updateendd);
-    
-        if (!isset($_POST["vt_events_location"])) {
-            return $post;
         }
 
-        update_post_meta($post->ID, "vt_events_location", $_POST["vt_events_location"]);
+        if (
+            !isset($_POST["vt_events_startdate"]) ||
+            !isset($_POST["vt_events_enddate"]) ||
+            !isset($_POST["vt_events_location"]) ||
+            !isset($_POST["vt_events_display_home"])
+        ) {
+            //return $post;
+        }
+
+        update_post_meta(
+            $post->ID,
+            "vt_events_startdate",
+            strtotime($_POST["vt_events_startdate"])
+        );
+    
+        update_post_meta(
+            $post->ID,
+            "vt_events_enddate",
+            strtotime($_POST["vt_events_enddate"])
+        );
+
+        update_post_meta(
+            $post->ID,
+            "vt_events_location",
+            $_POST["vt_events_location"]
+        );
+
+        update_post_meta(
+            $post->ID,
+            "vt_events_display_home",
+            !empty($_POST["vt_events_display_home"])
+        );
     }
 
     /**

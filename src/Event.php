@@ -8,6 +8,7 @@ class Event extends \Timber\Post
     public $start;
     public $end;
     public $location;
+    public $home;
     public $now;
 
     public function __construct($pid = null)
@@ -16,6 +17,7 @@ class Event extends \Timber\Post
         $this->now = current_datetime()->getTimestamp() + current_datetime()->getOffset();
         $this->start = (int) $this->meta('vt_events_startdate') != 0 ? (int) $this->meta('vt_events_startdate') : $this->now;
         $this->end = (int) $this->meta('vt_events_enddate') != 0 ? (int) $this->meta('vt_events_enddate') : $this->now;
+        $this->home = $this->meta('vt_events_display_home') !== null ? $this->meta('vt_events_display_home') : true;
         $this->location = $this->meta('vt_events_location');
     }
 
@@ -24,9 +26,16 @@ class Event extends \Timber\Post
      * sans celui "actif" si exclude est à true  \
      * sous forme de PostQuery
      */
-    public function getNextEvents(int $nb, $exclude = false) : \Timber\PostQuery
+    public function getNextEvents(int $nb, $exclude = false, $onHome = false) : \Timber\PostQuery
     {
         $post_not_in[] = $exclude ? $this->id : null;
+        $meta = [];
+        if($onHome) {
+            $meta = [
+                'key' => 'vt_events_display_home',
+                'value' => true
+            ];
+        }
         $args = [
             'post_type' => 'vt_events',
             'posts_per_page' => $nb,
@@ -38,6 +47,7 @@ class Event extends \Timber\Post
                     'value' => strtotime(date("Ymd", $this->now)),
                     'compare' => '>=',
                 ],
+                $meta,
             ],
             'meta_key' => 'vt_events_startdate',
             'orderby' => 'meta_value',
@@ -307,7 +317,7 @@ class Event extends \Timber\Post
     /**
      * L'événement est-il sur plus de deux jours dans le même mois ?
      */
-    public function isMoreDaysSameMontEvent() : bool
+    public function isMoreDaysSameMonthEvent() : bool
     {
         return $this->getStartInFrench('f') === $this->getEndInFrench('f') &&
             (int) $this->getEndInFrench('j') - (int) $this->getStartInFrench('j') > 1;
