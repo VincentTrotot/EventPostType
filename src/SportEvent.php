@@ -136,22 +136,22 @@ class SportEvent extends Event
     public static function getSaisons() : array
     {
         $results = $GLOBALS['wpdb']->get_results(
-            "SELECT DISTINCT YEAR(FROM_UNIXTIME(meta_value)), MONTH(FROM_UNIXTIME(meta_value))
+            "SELECT DISTINCT YEAR(FROM_UNIXTIME(meta_value)) AS 'MY_YEAR', MONTH(FROM_UNIXTIME(meta_value)) AS 'MY_MONTH'
             FROM {$GLOBALS['wpdb']->prefix}postmeta
-            WHERE meta_key='vt_events_startdate'",
+            WHERE meta_key='vt_events_startdate'
+            ORDER BY MY_YEAR ASC",
             ARRAY_N
         );
-        sort($results);
 
         $saisons = [];
         foreach ($results as $saison) {
             if ($saison[1] > 8 && !in_array($saison[0], $saisons)) {
                 $saisons[] = $saison[0];
-            } elseif (!in_array(((int) $saison[0] - 1), $saisons)) {
+            } else if($saison[1] <= 8 && !in_array(((int) $saison[0] - 1), $saisons)) {
                 $saisons[] = (int) $saison[0] - 1;
             }
-        }
 
+        }
         return $saisons;
     }
 
