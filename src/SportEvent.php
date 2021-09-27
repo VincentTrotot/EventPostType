@@ -75,7 +75,7 @@ class SportEvent extends Event
         Timber::render('layout/_post-pagination.html.twig', $context);
     }
 
-    public function getNextEvents(int $nb, $exclude = false) : PostQuery
+    public function getNextEvents(int $nb, $exclude = false, $onHome = false)) : PostQuery
     {
         $now = current_datetime()->getTimestamp() + current_datetime()->getOffset();
         return new PostQuery([
