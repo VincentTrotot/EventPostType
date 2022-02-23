@@ -57,6 +57,25 @@ class Event extends \Timber\Post
     }
 
     /**
+     * l'événement se produit-il aujourd'hui ?
+     */
+    public function isToday()
+    {
+        return
+            strtotime(date("Ymd", $this->start)) <= strtotime(date("Ymd", $this->now)) &&
+            strtotime(date("Ymd", $this->end)) >= strtotime(date("Ymd", $this->now));
+    }
+
+    /**
+     * l'événement se produit-il cette semaine ?
+     */
+    public function isThisWeek()
+    {
+        return date("W", $this->start) <= date("W", $this->now) &&
+            date("W", $this->end) >= date("W", $this->now);
+    }
+    
+    /**
      * Retourne le nombre d'événements à venir
      */
     public function getNbFutureEvents()
