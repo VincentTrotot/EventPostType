@@ -279,7 +279,33 @@ class Event extends \Timber\Post
         return $this->differentMonthEvent($hour);
     }
     
+    /**
+     * Retourne l'heure formatée différement selon si l'événement a une heure de début, \
+     * de fin, ou si il est sur plusieurs jours.
+     */
+    public function getHour()
+    {
+        $start = Event::inFrench('G\hi', $this->start);
+        $end = Event::inFrench('G\hi', $this->end);
 
+        // Si le début et la fin sont à '0h',
+        // on affiche pas d'heure de début
+        if($start == '0h' && $end == '0h') {
+            return false;
+        }
+
+        $res = $start;
+
+        // Si la date de fin est différente de la date de début
+        // et que l'événement est sur un jour, on l'affiche
+        if ($start != $end && $this->isOneDayEvent()) {
+            $res .= ' > ' . $end;
+        }
+    
+        return $res;
+
+    }
+    
     /**
      * L'événement est-il sur un jour?
      */
