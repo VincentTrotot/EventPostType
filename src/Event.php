@@ -57,6 +57,42 @@ class Event extends \Timber\Post
     }
 
     /**
+     * Retourne les événenements  \
+     * compris entre $startdate et $enddate  \
+     * sous forme de PostQuery
+     */
+    public function getRangeEvents(string $startdate, string $enddate) : \Timber\PostQuery
+    {
+        //echo strtotime($startdate);
+        $args = [
+            'post_type' => 'vt_events',
+            'posts_per_page' => -1,
+            'meta_query' => [
+                [
+                    'key' => 'vt_events_enddate',
+                    'value' => strtotime($startdate),
+                    'compare' => '>=',
+                ],
+                [
+                    'key' => 'vt_events_startdate',
+                    'value' => strtotime($enddate),
+                    'compare' => '<=',
+                ],
+                // [
+                //     'key' => 'vt_events_startdate',
+                //     'value' => [strtotime(date("Ymd",$startdate)), strtotime(date("Ymd",$enddate))],
+                //     'compare' => 'BETWEEN',
+                //     'type' => 'DATE',
+                // ],
+            ],
+            'meta_key' => 'vt_events_startdate',
+            'orderby' => 'meta_value',
+            'order' => 'ASC',
+        ];
+        return new \Timber\PostQuery($args, Event::class);
+    }
+
+    /**
      * l'événement se produit-il aujourd'hui ?
      */
     public function isToday()
