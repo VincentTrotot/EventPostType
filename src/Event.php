@@ -78,12 +78,6 @@ class Event extends \Timber\Post
                     'value' => strtotime($enddate),
                     'compare' => '<=',
                 ],
-                // [
-                //     'key' => 'vt_events_startdate',
-                //     'value' => [strtotime(date("Ymd",$startdate)), strtotime(date("Ymd",$enddate))],
-                //     'compare' => 'BETWEEN',
-                //     'type' => 'DATE',
-                // ],
             ],
             'meta_key' => 'vt_events_startdate',
             'orderby' => 'meta_value',
