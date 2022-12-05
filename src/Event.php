@@ -101,8 +101,12 @@ class Event extends \Timber\Post
      */
     public function isThisWeek()
     {
-        return date("W", $this->start) <= date("W", $this->now) &&
-            date("W", $this->end) >= date("W", $this->now);
+        $FirstDay = date("Y-m-d", strtotime('sunday last week'));
+        $LastDay = date("Y-m-d", strtotime('sunday this week'));
+
+        return
+            date("Y-m-d", $this->start) > $FirstDay && date("Y-m-d", $this->start) <= $LastDay ||
+            date("Y-m-d", $this->end) > $FirstDay && date("Y-m-d", $this->end) <= $LastDay;
     }
     
     /**
