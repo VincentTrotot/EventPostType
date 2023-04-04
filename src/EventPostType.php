@@ -28,7 +28,7 @@ class EventPostType
         add_action('save_post', [$this, 'save']);
         add_filter('post_updated_messages', [$this, 'updatedMessages']);
 
-                
+
         add_action('admin_print_scripts', [$this, 'enqueueScripts'], 1000);
         add_action('admin_print_scripts-post.php', [$this, 'enqueueScripts'], 1000);
         add_action('admin_print_scripts-post-new.php', [$this, 'enqueueScripts'], 1000);
@@ -58,7 +58,7 @@ class EventPostType
             'not_found_in_trash' => __('Pas d\'événement trouvé dans la corbeille'),
             'parent_item_colon' => '',
         ];
-    
+
         $args = [
             'label' => __('Agenda'),
             'labels' => $labels,
@@ -71,13 +71,13 @@ class EventPostType
             'capability_type' => 'post',
             'menu_icon' => 'dashicons-calendar-alt',
             'hierarchical' => false,
-            'rewrite' =>[ 'slug' => $this->slug ],
+            'rewrite' => ['slug' => $this->slug],
             'has_archive' => $this->slug,
-            'supports'=>['title', 'editor', 'thumbnail', 'excerpt', 'author'] ,
+            'supports' => ['title', 'editor', 'thumbnail', 'excerpt', 'author'],
             'show_in_nav_menus' => true,
-            'taxonomies' =>[ 'vt_eventcategory']
+            'taxonomies' => ['vt_eventcategory']
         ];
-    
+
         register_post_type('vt_events', $args);
     }
 
@@ -103,7 +103,7 @@ class EventPostType
             'add_or_remove_items' => __('Ajouter ou supprimer un type d\'événement'),
             'choose_from_most_used' => __('Choisir parmi les types d\'événements les plus utilisées'),
         ];
-    
+
         $args = [
             'label' => __('Catégorie d\'événement'),
             'labels' => $labels,
@@ -112,9 +112,9 @@ class EventPostType
             'query_var' => true,
             'show_admin_column'   => true,
             'show_in_rest' => true,
-            'rewrite' =>[ 'slug' => 'event-category' ],
+            'rewrite' => ['slug' => 'event-category'],
         ];
-    
+
         register_taxonomy('vt_eventcategory', 'vt_events', $args);
     }
 
@@ -128,10 +128,12 @@ class EventPostType
         $request = new Request($_GET);
         $post_type = $request->query->get('post_type', '');
         $orderby = $request->query->get('orderby', false);
-        if (is_admin()
+        if (
+            is_admin()
             && 'edit.php' === $pagenow
-                    && $post_type === 'vt_events'
-            && !$orderby) {
+            && $post_type === 'vt_events'
+            && !$orderby
+        ) {
             $query->set('meta_key', 'vt_events_startdate');
             $query->set('orderby', 'meta_value');
             $query->set('order', 'DESC');
@@ -144,12 +146,12 @@ class EventPostType
      */
     public function customOrderBy($query)
     {
-        if (! is_admin()) {
+        if (!is_admin()) {
             return;
         }
-    
+
         $orderby = $query->get('orderby');
-    
+
         if ('vt_events_startdate' == $orderby) {
             $query->set('meta_key', 'vt_events_startdate');
             $query->set('orderby', 'meta_value_num');
@@ -180,8 +182,8 @@ class EventPostType
             "vt_col_ev_cat" => "Catégorie",
             "vt_col_ev_home" => "Sur la page d'accueil",
             "vt_col_ev_author" => "Auteur",
-            ];
-    
+        ];
+
         return $columns;
     }
 
@@ -197,18 +199,17 @@ class EventPostType
             case 'vt_col_ev_cat':
                 // - show taxonomy terms -
                 $eventcats = get_the_terms($post->ID, "vt_eventcategory");
-                $eventcats_html =[];
+                $eventcats_html = [];
                 if ($eventcats) {
                     foreach ($eventcats as $eventcat) {
                         array_push($eventcats_html, $eventcat->name);
                     }
                     echo implode(", ", $eventcats_html);
                 } else {
-                    _e('None', 'themeforce');
-                    ;
+                    _e('None', 'themeforce');;
                 }
                 break;
-            
+
             case 'vt_col_ev_date':
                 // - show dates -
                 $startd = $custom["vt_events_startdate"][0];
@@ -229,16 +230,16 @@ class EventPostType
 
                 echo $startdate;
                 if (!$day) {
-                    echo " - ". $starttime;
+                    echo " - " . $starttime;
                 }
                 if ($startdate != $enddate) {
                     echo '<br /><em>' . $enddate;
                     if (!$day) {
-                        echo ' - '.$endtime;
+                        echo ' - ' . $endtime;
                     }
                     echo '</em>';
                 } else {
-                    echo ' > '.$endtime;
+                    echo ' > ' . $endtime;
                 }
                 break;
 
@@ -246,8 +247,14 @@ class EventPostType
                 $home = $custom["vt_events_display_home"][0] ?? false;
                 if ($home == true) {
                     echo "<p>✅</p>";
+                } else {
+                    echo "<p>❌</p>";
                 }
-                else {
+                break;
+
+            case 'vt_col_ev_home':
+                $cancelled = $custom["vt_events_is_cancelled"][0] ?? false;
+                if ($cancelled == true) {
                     echo "<p>❌</p>";
                 }
                 break;
@@ -255,7 +262,7 @@ class EventPostType
             case 'vt_col_ev_desc':
                 the_excerpt();
                 break;
-            
+
             case 'vt_col_ev_author':
                 the_author();
                 break;
@@ -273,7 +280,7 @@ class EventPostType
             $request = new Request($_GET);
             $context['after'] = $request->query->get('vt_events_startdate_after', '');
             $context['before'] = $request->query->get('vt_events_startdate_before', '');
-  
+
             Timber::render('templates/event-filter-columns.html.twig', $context);
         }
     }
@@ -290,29 +297,29 @@ class EventPostType
         $post_type = $request->query->get('post_type', '');
         $after = $request->query->get('vt_events_startdate_after');
         $before = $request->query->get('vt_events_startdate_before');
-        if (! isset($query->query_vars['meta_query'])) {
-            $query->query_vars['meta_query'] =[];
+        if (!isset($query->query_vars['meta_query'])) {
+            $query->query_vars['meta_query'] = [];
         }
-    
+
         // append to meta_query array
-        if (is_admin() && $pagenow=='edit.php' && $post_type == 'vt_events') {
+        if (is_admin() && $pagenow == 'edit.php' && $post_type == 'vt_events') {
             // date de début (événements après la date)
             if ($after) {
                 $meta = [
-                   'key'  =>   'vt_events_startdate',
-                   'value' =>   strtotime(str_replace('/', '-', $after) . '00:00'),
-                   'compare' => '>'
-                 ];
+                    'key'  =>   'vt_events_startdate',
+                    'value' =>   strtotime(str_replace('/', '-', $after) . '00:00'),
+                    'compare' => '>'
+                ];
                 $query->query_vars['meta_query'][] = $meta;
             }
-          
+
             // date de fin (événements avant la date)
             if ($before) {
                 $meta = [
-                   'key'  =>   'vt_events_startdate',
-                   'value' =>   strtotime(str_replace('/', '-', $before) . '23:59'),
-                   'compare' => '<'
-                 ];
+                    'key'  =>   'vt_events_startdate',
+                    'value' =>   strtotime(str_replace('/', '-', $before) . '23:59'),
+                    'compare' => '<'
+                ];
                 $query->query_vars['meta_query'][] = $meta;
             }
         }
@@ -339,7 +346,7 @@ class EventPostType
      */
     public function customMetabox()
     {
-        
+
         $context['post'] = new Event();
         $context['nonce'] = wp_create_nonce('vt-events-nonce');
         Timber::render('templates/event-meta-box.html.twig', $context);
@@ -352,11 +359,11 @@ class EventPostType
     public function save()
     {
         global $post;
-        
+
         if (!isset($_POST['vt-events-nonce'])) {
             return;
         }
-    
+
         if (
             !wp_verify_nonce($_POST['vt-events-nonce'], 'vt-events-nonce') ||
             !current_user_can('edit_post', $post->ID)
@@ -368,7 +375,8 @@ class EventPostType
             !isset($_POST["vt_events_startdate"]) ||
             !isset($_POST["vt_events_enddate"]) ||
             !isset($_POST["vt_events_location"]) ||
-            !isset($_POST["vt_events_display_home"])
+            !isset($_POST["vt_events_display_home"]) ||
+            !isset($_POST["vt_events_is_cancelled"])
         ) {
             //return $post;
         }
@@ -378,7 +386,7 @@ class EventPostType
             "vt_events_startdate",
             strtotime($_POST["vt_events_startdate"])
         );
-    
+
         update_post_meta(
             $post->ID,
             "vt_events_enddate",
@@ -396,6 +404,12 @@ class EventPostType
             "vt_events_display_home",
             !empty($_POST["vt_events_display_home"])
         );
+
+        update_post_meta(
+            $post->ID,
+            "vt_events_is_cancelled",
+            !empty($_POST["vt_events_is_cancelled"])
+        );
     }
 
     /**
@@ -408,7 +422,7 @@ class EventPostType
         $request = new Request($_GET);
         $revision = $request->query->get('revision');
 
-    
+
         $messages['vt_events'] = [
             0 => '', // Unused. Messages start at index 1.
             1 => sprintf(
@@ -435,8 +449,8 @@ class EventPostType
             9 => sprintf(
                 __(
                     '&Eacute;vénement programmé pour : '
-                    .'<strong>%1$s</strong>. '
-                    .'<a target="_blank" href="%2$s">Prévisualiser l\'événement</a>'
+                        . '<strong>%1$s</strong>. '
+                        . '<a target="_blank" href="%2$s">Prévisualiser l\'événement</a>'
                 ),
                 date_i18n(__('M j, Y @ G:i'), strtotime($post->post_date)),
                 esc_url(get_permalink($post_ID))
@@ -446,7 +460,7 @@ class EventPostType
                 esc_url(add_query_arg('preview', 'true', get_permalink($post_ID)))
             ),
         ];
-    
+
         return $messages;
     }
 
@@ -462,7 +476,7 @@ class EventPostType
         if ('vt_events' != $post_type) {
             return;
         }
-        wp_enqueue_script('custom_script', str_replace( ABSPATH, '/', __DIR__ ).'/js/vt_events.js');
+        wp_enqueue_script('custom_script', str_replace(ABSPATH, '/', __DIR__) . '/js/vt_events.js');
     }
 
     /**
@@ -471,29 +485,29 @@ class EventPostType
      */
     public function customGlanceItems($items = [])
     {
-        $post_types =[ 'vt_events' ];
+        $post_types = ['vt_events'];
         foreach ($post_types as $type) {
-            if (! post_type_exists($type)) {
+            if (!post_type_exists($type)) {
                 continue;
             }
             $num_posts = (new Event())->getNbFutureEvents();
             if ($num_posts) {
                 $post_type = get_post_type_object($type);
                 $text = strtolower(_n('%s événement', '%s événements', $num_posts, 'your_textdomain'));
-                $text = sprintf($text, number_format_i18n($num_posts)). ' à venir';
+                $text = sprintf($text, number_format_i18n($num_posts)) . ' à venir';
                 if (current_user_can($post_type->cap->edit_posts)) {
                     $output =
                         '<a href="edit.php?post_type='
-                        .$post_type->name
-                        .'&vt_events_startdate_after='
-                        .date('d')
-                        .'%2F'
-                        .date('m')
-                        .'%2F'
+                        . $post_type->name
+                        . '&vt_events_startdate_after='
+                        . date('d')
+                        . '%2F'
+                        . date('m')
+                        . '%2F'
                         . date('Y')
-                        .'" >'
-                        .$text
-                        .'</a>';
+                        . '" >'
+                        . $text
+                        . '</a>';
                     echo '<li class="post-count ' . $post_type->name . '-count">' . $output . '</li>';
                 } else {
                     $output = '<span>' . $text . '</span>';

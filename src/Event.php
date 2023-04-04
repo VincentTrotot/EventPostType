@@ -5,11 +5,12 @@ namespace VincentTrotot\Event;
 class Event extends \Timber\Post
 {
 
+    public $now;
     public $start;
     public $end;
     public $location;
-    public $home;
-    public $now;
+    public $isHome;
+    public $isCancelled;
 
     public function __construct($pid = null)
     {
@@ -17,8 +18,9 @@ class Event extends \Timber\Post
         $this->now = current_datetime()->getTimestamp() + current_datetime()->getOffset();
         $this->start = (int) $this->meta('vt_events_startdate') != 0 ? (int) $this->meta('vt_events_startdate') : $this->now;
         $this->end = (int) $this->meta('vt_events_enddate') != 0 ? (int) $this->meta('vt_events_enddate') : $this->now;
-        $this->home = $this->meta('vt_events_display_home') !== null ? $this->meta('vt_events_display_home') : true;
         $this->location = $this->meta('vt_events_location');
+        $this->isHome = $this->meta('vt_events_display_home') !== null ? $this->meta('vt_events_display_home') : true;
+        $this->isCancelled = $this->meta('vt_events_is_cancelled') !== null ? $this->meta('vt_events_is_cancelled') : false;
     }
 
     /**
@@ -26,11 +28,11 @@ class Event extends \Timber\Post
      * sans celui "actif" si exclude est à true  \
      * sous forme de PostQuery
      */
-    public function getNextEvents(int $nb, $exclude = false, $onHome = false) : \Timber\PostQuery
+    public function getNextEvents(int $nb, $exclude = false, $onHome = false): \Timber\PostQuery
     {
         $post_not_in[] = $exclude ? $this->id : null;
         $meta = [];
-        if($onHome) {
+        if ($onHome) {
             $meta = [
                 'key' => 'vt_events_display_home',
                 'value' => true
@@ -61,7 +63,7 @@ class Event extends \Timber\Post
      * compris entre $startdate et $enddate  \
      * sous forme de PostQuery
      */
-    public function getRangeEvents(string $startdate, string $enddate) : \Timber\PostQuery
+    public function getRangeEvents(string $startdate, string $enddate): \Timber\PostQuery
     {
         //echo strtotime($startdate);
         $args = [
@@ -108,7 +110,7 @@ class Event extends \Timber\Post
             date("Y-m-d", $this->start) > $FirstDay && date("Y-m-d", $this->start) <= $LastDay ||
             date("Y-m-d", $this->end) > $FirstDay && date("Y-m-d", $this->end) <= $LastDay;
     }
-    
+
     /**
      * Retourne le nombre d'événements à venir
      */
@@ -122,7 +124,7 @@ class Event extends \Timber\Post
      */
     public static function inFrench($format, $timestamp = null)
     {
-        $param_d =[
+        $param_d = [
             '',
             'lun',
             'mar',
@@ -132,7 +134,7 @@ class Event extends \Timber\Post
             'sam',
             'dim'
         ];
-        $param_D =[
+        $param_D = [
             '',
             'Lun',
             'Mar',
@@ -142,7 +144,7 @@ class Event extends \Timber\Post
             'Sam',
             'Dim'
         ];
-        $param_l =[
+        $param_l = [
             '',
             'lundi',
             'mardi',
@@ -152,7 +154,7 @@ class Event extends \Timber\Post
             'samedi',
             'dimanche'
         ];
-        $param_L =[
+        $param_L = [
             '',
             'Lundi',
             'Mardi',
@@ -162,7 +164,7 @@ class Event extends \Timber\Post
             'Samedi',
             'Dimanche'
         ];
-        $param_f =[
+        $param_f = [
             '',
             'janvier',
             'février',
@@ -177,7 +179,7 @@ class Event extends \Timber\Post
             'novembre',
             'décembre'
         ];
-        $param_F =[
+        $param_F = [
             '',
             'Janvier',
             'Février',
@@ -192,7 +194,7 @@ class Event extends \Timber\Post
             'Novembre',
             'Décembre'
         ];
-        $param_m =[
+        $param_m = [
             '',
             'jan',
             'fév',
@@ -207,7 +209,7 @@ class Event extends \Timber\Post
             'nov',
             'déc'
         ];
-        $param_M =[
+        $param_M = [
             '',
             'Jan',
             'Fév',
@@ -274,7 +276,7 @@ class Event extends \Timber\Post
      * Retourne la date de début de l'événement formatée en français  \
      * selon le $format
      */
-    public function getStartInFrench(string $format) : string
+    public function getStartInFrench(string $format): string
     {
         return Event::inFrench($format, $this->start);
     }
@@ -283,7 +285,7 @@ class Event extends \Timber\Post
      * Retourne la date de fin de l'événement formatée en français  \
      * selon le $format
      */
-    public function getEndInFrench(string $format) : string
+    public function getEndInFrench(string $format): string
     {
         return Event::inFrench($format, $this->end);
     }
@@ -294,25 +296,25 @@ class Event extends \Timber\Post
      */
     public function getDate($hour = false)
     {
-            // événement sur 1 jour
+        // événement sur 1 jour
         if ($this->isOneDayEvent()) {
             return $this->oneDayEvent($hour);
         }
-    
+
         // événement sur deux jours dans le même mois
         if ($this->isTwoDaysSameMonthEvent()) {
             return $this->twoDaysSameMonthEvent($hour);
         }
-        
+
         // événement sur plus de deux jours dans le même mois
         if ($this->isMoreDaysSameMonthEvent()) {
             return $this->moreDaysSameMonthEvent($hour);
         }
-    
+
         // événement sur plusieurs jours dans des mois différents
         return $this->differentMonthEvent($hour);
     }
-    
+
     /**
      * Retourne l'heure formatée différement selon si l'événement a une heure de début, \
      * de fin, ou si il est sur plusieurs jours.
@@ -324,7 +326,7 @@ class Event extends \Timber\Post
 
         // Si le début et la fin sont à '0h',
         // on affiche pas d'heure de début
-        if($start == '0h' && $end == '0h') {
+        if ($start == '0h' && $end == '0h') {
             return false;
         }
 
@@ -335,15 +337,14 @@ class Event extends \Timber\Post
         if ($start != $end && $this->isOneDayEvent()) {
             $res .= ' > ' . $end;
         }
-    
-        return $res;
 
+        return $res;
     }
-    
+
     /**
      * L'événement est-il sur un jour?
      */
-    public function isOneDayEvent() : bool
+    public function isOneDayEvent(): bool
     {
         return $this->getStartInFrench('l j f') === $this->getEndInFrench('l j f');
     }
@@ -351,10 +352,11 @@ class Event extends \Timber\Post
     /**
      * Retourne la date formatée pour un événement sur un jour
      */
-    public function oneDayEvent($hour) : string
+    public function oneDayEvent($hour): string
     {
         $res = Event::inFrench('L j f Y', $this->start);
-        if ($hour &&
+        if (
+            $hour &&
             Event::inFrench('G\hi', $this->start) != '0h' &&
             Event::inFrench('G\hi', $this->end) != '0h'
         ) {
@@ -365,11 +367,11 @@ class Event extends \Timber\Post
         }
         return $res;
     }
-    
+
     /**
      * L'événement est-il sur deux jour consécutifs dans le même mois?
      */
-    public function isTwoDaysSameMonthEvent() : bool
+    public function isTwoDaysSameMonthEvent(): bool
     {
         return $this->getStartInFrench('f') == $this->getEndInFrench('f') &&
             (int) $this->getEndInFrench('j') - (int) $this->getStartInFrench('j') == 1;
@@ -378,25 +380,26 @@ class Event extends \Timber\Post
     /**
      * Retourne la date formatée pour un événement sur deux jours consécutifs dans le même mois
      */
-    public function twoDaysSameMonthEvent($hour) : string
+    public function twoDaysSameMonthEvent($hour): string
     {
-        $res = Event::inFrench('L j', $this->start).' et '.Event::inFrench('l j f Y', $this->end);
-        if ($hour &&
+        $res = Event::inFrench('L j', $this->start) . ' et ' . Event::inFrench('l j f Y', $this->end);
+        if (
+            $hour &&
             Event::inFrench('G\hi', $this->start) != '0h' &&
             Event::inFrench('G\hi', $this->end) != '0h'
         ) {
             $res .=
                 ' | Démarrage à '
-                .Event::inFrench('G\hi', $this->start)
-                .' le '.Event::inFrench('l', $this->start);
+                . Event::inFrench('G\hi', $this->start)
+                . ' le ' . Event::inFrench('l', $this->start);
         }
         return $res;
     }
-    
+
     /**
      * L'événement est-il sur plus de deux jours dans le même mois ?
      */
-    public function isMoreDaysSameMonthEvent() : bool
+    public function isMoreDaysSameMonthEvent(): bool
     {
         return $this->getStartInFrench('f') === $this->getEndInFrench('f') &&
             (int) $this->getEndInFrench('j') - (int) $this->getStartInFrench('j') > 1;
@@ -405,40 +408,42 @@ class Event extends \Timber\Post
     /**
      * Retourne la date formatée pour un événement sur plus de deux jours dans le même mois
      */
-    public function moreDaysSameMonthEvent($hour) : string
+    public function moreDaysSameMonthEvent($hour): string
     {
-        $res = 'Du '.Event::inFrench('l j', $this->start). ' au '. Event::inFrench('l j f Y', $this->end);
-        if ($hour &&
+        $res = 'Du ' . Event::inFrench('l j', $this->start) . ' au ' . Event::inFrench('l j f Y', $this->end);
+        if (
+            $hour &&
             Event::inFrench('G\hi', $this->start) != '0h' &&
             Event::inFrench('G\hi', $this->end) != '0h'
         ) {
             $res .=
                 ' | Démarrage à '
-                .Event::inFrench('G\hi', $this->start)
-                .' le '.Event::inFrench('l', $this->start);
+                . Event::inFrench('G\hi', $this->start)
+                . ' le ' . Event::inFrench('l', $this->start);
         }
         return $res;
     }
-    
+
     /**
      * Retourne la date formatée pour un événement dont le début et la fin ne sont pas dans le même mois
      */
-    public function differentMonthEvent($hour) : string
+    public function differentMonthEvent($hour): string
     {
         $consecutive = Event::inFrench('j', strtotime('+1 day', $this->start)) === Event::inFrench('j', $this->end);
         if ($consecutive) {
-            $res = Event::inFrench('L j f', $this->start).' et '.Event::inFrench('l j f Y', $this->end);
+            $res = Event::inFrench('L j f', $this->start) . ' et ' . Event::inFrench('l j f Y', $this->end);
         } else {
-            $res = 'Du '. Event::inFrench('l j f', $this->start) .' au '. Event::inFrench('l j f Y', $this->end);
+            $res = 'Du ' . Event::inFrench('l j f', $this->start) . ' au ' . Event::inFrench('l j f Y', $this->end);
         }
-        if ($hour &&
+        if (
+            $hour &&
             Event::inFrench('G\hi', $this->start) != '0h' &&
             Event::inFrench('G\hi', $this->end) != '0h'
         ) {
             $res .=
                 ' | Démarrage à '
-                .Event::inFrench('G\hi', $this->start)
-                .' le '.Event::inFrench('l', $this->start);
+                . Event::inFrench('G\hi', $this->start)
+                . ' le ' . Event::inFrench('l', $this->start);
         }
         return $res;
     }
