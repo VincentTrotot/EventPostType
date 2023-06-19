@@ -335,6 +335,10 @@ class Event extends \Timber\Post
         // Si la date de fin est différente de la date de début
         // et que l'événement est sur un jour, on l'affiche
         if ($start != $end && $this->isOneDayEvent()) {
+            // si la fin est à 23h59, on affiche minuit
+            if ($end == '23h59') {
+                $end = 'minuit';
+            }
             $res .= ' > ' . $end;
         }
 
