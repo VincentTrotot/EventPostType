@@ -557,7 +557,12 @@ class EventPostType
      */
     function custom_query_vars($vars)
     {
+        // id du post à annuler / maintenir
         $vars[] = 'cancel_event_with_id';
+
+        //redirection vers une route spécifique ?
+        // 'archive' | null
+        $vars[] = 'cancel_event_redirect_route';
         return $vars;
     }
 
@@ -591,7 +596,10 @@ class EventPostType
         get_post($post);
         wp_update_post($post);
 
-        // redirection vers le post
-        wp_redirect($post_permalink);
+        // si une redirection est demandée, on la fait
+        $redirect = get_query_var('cancel_event_redirect_route');
+        if ($redirect == "archive") wp_redirect(get_post_type_archive_link($post->post_type));
+        // sinon, on redirige vers le post
+        else wp_redirect($post_permalink);
     }
 }
