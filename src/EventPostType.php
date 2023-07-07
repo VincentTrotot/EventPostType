@@ -523,7 +523,7 @@ class EventPostType
         return $items;
     }
 
-        /**
+    /**
      * Ajoute un bouton dans la barre admin de wordpress pour annuler ou maintenir un événement \
      * hook: admin_bar_menu
      */
@@ -531,6 +531,11 @@ class EventPostType
     {
         wp_reset_postdata();
         global $post;
+
+        //Si on est pas sur un post ni sur un vt_events, on ne fait rien
+        if ($post == null) return;
+        if ($post->post_type !== "vt_events") return;
+
         $is_cancelled = (bool)get_post_meta($post->ID, 'vt_events_is_cancelled')[0];
         $title =
             $is_cancelled ?
