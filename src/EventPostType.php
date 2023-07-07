@@ -36,6 +36,11 @@ class EventPostType
         add_filter('dashboard_glance_items', [$this, 'customGlanceItems'], 10, 1);
 
         $this->slug = isset($options['slug']) ? $options['slug'] : 'agenda';
+
+        add_action('admin_bar_menu', [$this, 'add_custom_toolbar'], 90);
+
+        add_filter('query_vars', [$this, 'custom_query_vars']);
+        add_action('template_redirect', [$this, 'cancel_event_route']);
     }
 
     /**
@@ -516,5 +521,67 @@ class EventPostType
             }
         }
         return $items;
+    }
+
+        /**
+     * Ajoute un bouton dans la barre admin de wordpress pour annuler ou maintenir un événement \
+     * hook: admin_bar_menu
+     */
+    function add_custom_toolbar($admin_bar)
+    {
+        wp_reset_postdata();
+        global $post;
+        $is_cancelled = (bool)get_post_meta($post->ID, 'vt_events_is_cancelled')[0];
+        $title =
+            $is_cancelled ?
+            '<span class="ab-icon dashicons dashicons-yes-alt" style="top:3px"></span>Maintenir' :
+            '<span class="ab-icon dashicons dashicons-dismiss" style="top:3px"></span>Annuler';
+        if ($post->post_type == 'vt_events') {
+            $admin_bar->add_menu(array(
+                'id'    => 'cancel-event',
+                'title' => $title,
+                'href'  => esc_url(site_url() . '?&cancel_event_with_id=' . $post->ID),
+            ));
+        }
+    }
+
+
+    /**
+     * Ajoute un parametre GET custom \
+     * hook: query_vars
+     */
+    function custom_query_vars($vars)
+    {
+        $vars[] = 'cancel_event_with_id';
+        return $vars;
+    }
+
+    /**
+     * Pseudo middleware pour capter le parametre GET 'cancel_event_with_id' \
+     * et greffer un comportement pour annuler ou maintenir l'événement \
+     * hook: template_redirect
+     */
+    function cancel_event_route()
+    {
+
+        // vérification que le paramètre soit bien présent
+        $query = get_query_var('cancel_event_with_id');
+        if ($query == "") return;
+
+        // vérification que le post soit bien un vt_events
+        // ou que l'utilisateur puissent bien annuler l'événement
+        $post = get_post((int)$query);
+        $post_permalink = get_post_permalink($post);
+        if ($post->post_type !== 'vt_events' || !current_user_can('manage_options')) wp_redirect($post_permalink);
+
+
+        $is_cancelled = (bool)get_post_meta($post->ID, 'vt_events_is_cancelled')[0];
+        update_post_meta(
+            $post->ID,
+            "vt_events_is_cancelled",
+            !$is_cancelled
+        );
+
+        wp_redirect($post_permalink);
     }
 }
