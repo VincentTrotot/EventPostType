@@ -574,7 +574,7 @@ class EventPostType
         $post_permalink = get_post_permalink($post);
         if ($post->post_type !== 'vt_events' || !current_user_can('manage_options')) wp_redirect($post_permalink);
 
-
+        // mise à jour du post meta pour maintenir ou annuler l'événement
         $is_cancelled = (bool)get_post_meta($post->ID, 'vt_events_is_cancelled')[0];
         update_post_meta(
             $post->ID,
@@ -582,6 +582,11 @@ class EventPostType
             !$is_cancelled
         );
 
+        // force un post update pour invalider un éventuel cache
+        get_post($post);
+        wp_update_post($post);
+
+        // redirection vers le post
         wp_redirect($post_permalink);
     }
 }
