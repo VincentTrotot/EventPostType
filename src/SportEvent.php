@@ -16,11 +16,7 @@ class SportEvent extends Event
         parent::__construct($pid);
 
         $this->outdated = '';
-        if (in_array('Club', $this->terms('vt_eventcategory'))) {
-            $this->class = 'club';
-        } else {
-            $this->class = 'not-club';
-        }
+        $this->class = strtolower(implode(' ', $this->terms('vt_eventcategory')));
     }
 
     public function checkIfOutdated()
