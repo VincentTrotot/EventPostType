@@ -77,7 +77,11 @@ class SportEvent extends Event
         return new PostQuery([
             'post_type' => 'vt_events',
             'posts_per_page' => $nb,
-            'orderby' => 'meta_value',
+            'orderby' => [
+                'meta_value' => 'ASC',
+                'meta_value_num' => 'ASC'
+            ],
+            'meta_key' => 'vt_events_startdate',
             'meta_query' => [
                 [
                     'key' => 'vt_events_enddate',
